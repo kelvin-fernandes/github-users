@@ -32,6 +32,7 @@ export default class User extends Component {
     state = {
         stars: [],
         user: {},
+        links: {},
         loading: false
     };
 
@@ -39,11 +40,52 @@ export default class User extends Component {
         const { navigation } = this.props;
         const user = navigation.getParam('user');
 
-        this.setState({ loading: true });
+        await this.setState({ loading: true, user });
 
         const response = await api.get(`/users/${user.login}/starred`);
 
-        this.setState({ stars: response.data, user, loading: false });
+        const responseLinks = await this.handleResponseLink(response);
+
+        this.setState({
+            stars: response.data,
+            links: responseLinks,
+            loading: false
+        });
+    }
+
+    handleResponseLink = response => {
+        const links = response.headers.link
+            .replace(new RegExp('<', 'g'), '')
+            .replace(new RegExp('>;', 'g'), '')
+            .replace(new RegExp('rel=', 'g'), '')
+            .replace(new RegExp('"', 'g'), '')
+            .replace(new RegExp(',', 'g'), '')
+            .replace(new RegExp('https://api.github.com', 'g'), '')
+            .split(' ');
+
+        const dict = {};
+        for (let i = 1; i < links.length; i += 2) {
+            const key = links[i];
+            dict[key] = links[i - 1];
+        }
+
+        return dict;
+    };
+
+    async loadMore() {
+        const { stars, links } = this.state;
+
+        if (!links.last) return;
+
+        const response = await api.get(links.next);
+
+        const responseLinks = await this.handleResponseLink(response);
+
+        this.setState({
+            stars: [...stars, ...response.data],
+            links: responseLinks,
+            loading: false
+        });
     }
 
     render() {
@@ -63,6 +105,8 @@ export default class User extends Component {
                     <Stars
                         data={stars}
                         keyExtractor={star => String(star.id)}
+                        onEndReachedThreshold={0.1}
+                        onEndReached={() => this.loadMore()}
                         renderItem={({ item }) => (
                             <Starred>
                                 <OwnerAvatar
