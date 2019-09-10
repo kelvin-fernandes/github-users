@@ -28,8 +28,45 @@ export const Input = styled.TextInput.attrs({
 export const SubmitButton = styled(RectButton)`
     justify-content: center;
     align-items: center;
-    background-color: #273c75;
+    background-color: #3b5ab0;
     border-radius: 4px;
     margin-left: 10px;
     padding: 0 12px;
+    opacity: ${props => (props.loading ? 0.7 : 1)};
+`;
+
+export const List = styled.FlatList.attrs({
+    showsVerticalScrollIndicator: false
+})`
+    margin-top: 10px;
+`;
+
+export const User = styled.View`
+    align-items: center;
+    margin: 0 20px 30px;
+`;
+
+export const Avatar = styled.Image`
+    height: 64px;
+    width: 64px;
+    border-radius: 32px;
+    background-color: #eee;
+`;
+
+export const Name = styled.Text`
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+    margin-top: 5px;
+    text-align: center;
+`;
+
+export const Bio = styled.Text.attrs({
+    numberOfLines: 2
+})`
+    font-size: 13px;
+    line-height: 18;
+    color: #999;
+    margin-top: 5px;
+    text-align: center;
 `;
