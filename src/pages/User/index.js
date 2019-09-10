@@ -14,7 +14,8 @@ import {
     OwnerAvatar,
     Info,
     Title,
-    Author
+    Author,
+    ActivityIndicator
 } from './styles';
 
 export default class User extends Component {
@@ -30,20 +31,23 @@ export default class User extends Component {
 
     state = {
         stars: [],
-        user: {}
+        user: {},
+        loading: false
     };
 
     async componentDidMount() {
         const { navigation } = this.props;
         const user = navigation.getParam('user');
 
+        this.setState({ loading: true });
+
         const response = await api.get(`/users/${user.login}/starred`);
 
-        this.setState({ stars: response.data, user });
+        this.setState({ stars: response.data, user, loading: false });
     }
 
     render() {
-        const { stars, user } = this.state;
+        const { stars, user, loading } = this.state;
 
         return (
             <Container>
@@ -52,21 +56,26 @@ export default class User extends Component {
                     <Name>{user.name}</Name>
                     <Bio>{user.bio}</Bio>
                 </Header>
-                <Stars
-                    data={stars}
-                    keyExtractor={star => String(star.id)}
-                    renderItem={({ item }) => (
-                        <Starred>
-                            <OwnerAvatar
-                                source={{ uri: item.owner.avatar_url }}
-                            />
-                            <Info>
-                                <Title>{item.name}</Title>
-                                <Author>{item.owner.login}</Author>
-                            </Info>
-                        </Starred>
-                    )}
-                />
+
+                {loading ? (
+                    <ActivityIndicator />
+                ) : (
+                    <Stars
+                        data={stars}
+                        keyExtractor={star => String(star.id)}
+                        renderItem={({ item }) => (
+                            <Starred>
+                                <OwnerAvatar
+                                    source={{ uri: item.owner.avatar_url }}
+                                />
+                                <Info>
+                                    <Title>{item.name}</Title>
+                                    <Author>{item.owner.login}</Author>
+                                </Info>
+                            </Starred>
+                        )}
+                    />
+                )}
             </Container>
         );
     }
