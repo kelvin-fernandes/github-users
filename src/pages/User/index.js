@@ -94,7 +94,7 @@ export default class User extends Component {
     loadMore = async () => {
         const { stars, links } = this.state;
 
-        if (!links.last) return;
+        if (!links || (links && (!links.next || !links.last))) return;
 
         const response = await api.get(links.next);
 
