@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* module06reactnativeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* module06reactnativeTests.m */; };
 		0442C64312C944FCADA94634 /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A75436345CCB477C9E1D00FD /* FontAwesome5_Solid.ttf */; };

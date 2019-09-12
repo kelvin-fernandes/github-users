@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
 
 import api from '../../services/api';
@@ -25,7 +26,8 @@ export default class User extends Component {
 
     static propTypes = {
         navigation: PropTypes.shape({
-            getParam: PropTypes.func
+            getParam: PropTypes.func,
+            navigate: PropTypes.func
         }).isRequired
     };
 
@@ -105,6 +107,13 @@ export default class User extends Component {
         });
     };
 
+    handleNavigate = repository => {
+        const { navigation } = this.props;
+
+        // console.tron.log(repository);
+        navigation.navigate('Repository', { repository });
+    };
+
     render() {
         const { stars, user, loading, refreshing } = this.state;
 
@@ -127,15 +136,19 @@ export default class User extends Component {
                         onRefresh={this.refreshList}
                         refreshing={refreshing}
                         renderItem={({ item }) => (
-                            <Starred>
-                                <OwnerAvatar
-                                    source={{ uri: item.owner.avatar_url }}
-                                />
-                                <Info>
-                                    <Title>{item.name}</Title>
-                                    <Author>{item.owner.login}</Author>
-                                </Info>
-                            </Starred>
+                            <TouchableWithoutFeedback
+                                onPress={() => this.handleNavigate(item)}
+                            >
+                                <Starred>
+                                    <OwnerAvatar
+                                        source={{ uri: item.owner.avatar_url }}
+                                    />
+                                    <Info>
+                                        <Title>{item.name}</Title>
+                                        <Author>{item.owner.login}</Author>
+                                    </Info>
+                                </Starred>
+                            </TouchableWithoutFeedback>
                         )}
                     />
                 )}
