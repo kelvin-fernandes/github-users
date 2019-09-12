@@ -33,7 +33,8 @@ export default class User extends Component {
         stars: [],
         user: {},
         links: {},
-        loading: false
+        loading: false,
+        refreshing: false
     };
 
     async componentDidMount() {
@@ -41,6 +42,12 @@ export default class User extends Component {
         const user = navigation.getParam('user');
 
         await this.setState({ loading: true, user });
+
+        await this.initialStateStarredRepoList();
+    }
+
+    initialStateStarredRepoList = async () => {
+        const { user } = this.state;
 
         const response = await api.get(`/users/${user.login}/starred`);
 
@@ -51,9 +58,11 @@ export default class User extends Component {
             links: responseLinks,
             loading: false
         });
-    }
+    };
 
     handleResponseLink = response => {
+        if (!response.headers.link) return;
+
         const links = response.headers.link
             .replace(new RegExp('<', 'g'), '')
             .replace(new RegExp('>;', 'g'), '')
@@ -72,7 +81,15 @@ export default class User extends Component {
         return dict;
     };
 
-    async loadMore() {
+    refreshList = async () => {
+        this.setState({ refreshing: true });
+
+        await this.initialStateStarredRepoList();
+
+        this.setState({ refreshing: false });
+    };
+
+    loadMore = async () => {
         const { stars, links } = this.state;
 
         if (!links.last) return;
@@ -86,10 +103,10 @@ export default class User extends Component {
             links: responseLinks,
             loading: false
         });
-    }
+    };
 
     render() {
-        const { stars, user, loading } = this.state;
+        const { stars, user, loading, refreshing } = this.state;
 
         return (
             <Container>
@@ -106,7 +123,9 @@ export default class User extends Component {
                         data={stars}
                         keyExtractor={star => String(star.id)}
                         onEndReachedThreshold={0.1}
-                        onEndReached={() => this.loadMore()}
+                        onEndReached={this.loadMore}
+                        onRefresh={this.refreshList}
+                        refreshing={refreshing}
                         renderItem={({ item }) => (
                             <Starred>
                                 <OwnerAvatar
